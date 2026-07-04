@@ -2,7 +2,7 @@
 
 A modern web application built with **React** and **Vite**, designed to deliver a fast, responsive, and user-friendly experience.
 
-## 🚀 Features
+##  Features
 
 - Modern React UI
 - Fast development with Vite
@@ -11,7 +11,7 @@ A modern web application built with **React** and **Vite**, designed to deliver 
 - Clean project structure
 - Easy to maintain and extend
 
-## 🛠️ Tech Stack
+##  Tech Stack
 
 - React
 - Vite
@@ -20,7 +20,7 @@ A modern web application built with **React** and **Vite**, designed to deliver 
 - CSS3
 - npm
 
-## 📂 Project Structure
+##  Project Structure
 
 ```
 Raid_Silvee/
@@ -33,12 +33,12 @@ Raid_Silvee/
 │── README.md
 ```
 
-## 📦 Installation
+##  Installation
 
 Clone the repository:
 
 ```bash
-git clone https://github.com/<your-username>/Raid_Silvee.git
+git clone https://github.com/Sanketgaikwad07/Raid_Silvee
 ```
 
 Navigate to the project folder:
