@@ -1,0 +1,49 @@
+.inventory-summary__grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  padding: 12px 20px;
+}
+
+.inventory-metric {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 16px 8px;
+  border-radius: 10px;
+  background: #f8fafc;
+  transition: transform 0.2s;
+}
+
+.inventory-metric:hover {
+  transform: translateY(-2px);
+}
+
+.inventory-metric__icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 8px;
+}
+
+.inventory-metric__label {
+  font-size: 11.5px;
+  color: var(--text-secondary);
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.inventory-metric__value {
+  font-size: 18px;
+  font-weight: 800;
+}
+
+@media (max-width: 900px) {
+  .inventory-summary__grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}

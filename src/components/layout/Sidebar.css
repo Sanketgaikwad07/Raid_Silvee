@@ -1,0 +1,235 @@
+.sidebar {
+  width: var(--sidebar-width);
+  height: 100vh;
+  background:
+    linear-gradient(180deg, rgba(17, 60, 105, 0.5), transparent 36%),
+    var(--sidebar-bg);
+  position: fixed;
+  left: 0;
+  top: 0;
+  display: flex;
+  flex-direction: column;
+  z-index: 100;
+  overflow-y: auto;
+  overflow-x: hidden;
+  transition: width 0.3s ease;
+}
+
+/* Logo */
+.sidebar__logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 18px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+
+.sidebar__logo-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 18px;
+  font-weight: 800;
+  flex-shrink: 0;
+}
+
+.sidebar__logo-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar__logo-name {
+  color: #fff;
+  font-size: 17px;
+  font-weight: 800;
+  letter-spacing: 0;
+}
+
+.sidebar__logo-sub {
+  color: var(--sidebar-text);
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+}
+
+/* Navigation */
+.sidebar__nav {
+  flex: 1;
+  padding: 10px 10px;
+  overflow-y: auto;
+}
+
+.sidebar__nav-group {
+  margin-bottom: 2px;
+}
+
+.sidebar__nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 10px 12px;
+  border: none;
+  background: none;
+  color: var(--sidebar-text);
+  font-size: 13px;
+  font-weight: 500;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  text-decoration: none;
+  position: relative;
+}
+
+.sidebar__nav-item:hover {
+  background: var(--sidebar-hover);
+  color: #fff;
+  text-decoration: none;
+}
+
+.sidebar__nav-item.active {
+  background: var(--sidebar-active);
+  color: #fff;
+  box-shadow: 0 10px 20px rgba(15, 98, 254, 0.24);
+}
+
+.sidebar__nav-item.active::before {
+  content: '';
+  position: absolute;
+  left: -10px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 3px;
+  height: 20px;
+  background: #fff;
+  border-radius: 0 3px 3px 0;
+}
+
+.sidebar__nav-icon {
+  flex-shrink: 0;
+}
+
+.sidebar__nav-label {
+  flex: 1;
+  text-align: left;
+}
+
+.sidebar__nav-chevron {
+  flex-shrink: 0;
+  opacity: 0.6;
+}
+
+/* Submenu */
+.sidebar__submenu {
+  padding: 2px 0 4px 0;
+}
+
+.sidebar__submenu-item {
+  display: block;
+  padding: 7px 14px 7px 44px;
+  color: var(--sidebar-text);
+  font-size: 12.5px;
+  text-decoration: none;
+  border-radius: 6px;
+  transition: all 0.15s ease;
+  position: relative;
+}
+
+.sidebar__submenu-item::before {
+  content: '';
+  position: absolute;
+  left: 28px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--sidebar-text);
+  opacity: 0.4;
+  transition: all 0.15s;
+}
+
+.sidebar__submenu-item:hover {
+  color: #fff;
+  background: var(--sidebar-hover);
+  text-decoration: none;
+}
+
+.sidebar__submenu-item.active {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.sidebar__submenu-item.active::before {
+  background: #fff;
+  opacity: 1;
+}
+
+/* Footer */
+.sidebar__footer {
+  padding: 12px;
+  border-top: 1px solid rgba(255,255,255,0.06);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.sidebar__footer-card {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.sidebar__footer-company {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.sidebar__footer-company strong {
+  font-size: 12px;
+  color: #fff;
+  line-height: 1.35;
+}
+
+.sidebar__footer-company span {
+  font-size: 10px;
+  color: var(--sidebar-text);
+  line-height: 1.4;
+}
+
+.sidebar__footer-contact {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.sidebar__footer-contact span {
+  font-size: 10px;
+  color: var(--sidebar-text);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.sidebar__footer-contact strong {
+  font-size: 11px;
+  color: #fff;
+}
+
+.sidebar__footer-version {
+  font-size: 10px;
+  color: var(--sidebar-text);
+  opacity: 0.6;
+}
