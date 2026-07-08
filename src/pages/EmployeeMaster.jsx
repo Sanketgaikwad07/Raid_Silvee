@@ -1,9 +1,28 @@
 import React from 'react';
 import MasterPageTemplate from './MasterPageTemplate';
+import { employeesApi } from '../lib/mastersApi';
+import { STATUS_OPTIONS } from '../lib/masterOptions';
 
-const employees = [
-  { name: 'Amit Sharma', role: 'Sales Manager', phone: '+91 99999 11111', status: 'Active' },
-  { name: 'Priya Deshmukh', role: 'Accountant', phone: '+91 88888 22222', status: 'Active' },
+const formFields = [
+  { name: 'employeeCode', label: 'Employee Code', required: true },
+  { name: 'fullName', label: 'Full Name', required: true },
+  { name: 'designation', label: 'Designation' },
+  { name: 'phone', label: 'Phone', required: true },
+  { name: 'email', label: 'Email', type: 'email' },
+  { name: 'status', label: 'Status', type: 'select', required: true, options: STATUS_OPTIONS, defaultValue: 'ACTIVE' },
+];
+
+const columns = [
+  { key: 'employeeCode', label: 'Code' },
+  { key: 'fullName', label: 'Employee Name' },
+  { key: 'designation', label: 'Designation' },
+  { key: 'phone', label: 'Phone' },
+  { key: 'status', label: 'Status' },
+  {
+    key: 'hasUserAccount',
+    label: 'Login Account',
+    render: (row) => (row.hasUserAccount ? 'Linked' : '—'),
+  },
 ];
 
 const EmployeeMaster = () => (
@@ -11,13 +30,9 @@ const EmployeeMaster = () => (
     title="Employee Master"
     description="Manage employee records"
     addButtonText="Add Employee"
-    columns={[
-      { key: 'name', label: 'Employee Name' },
-      { key: 'role', label: 'Role' },
-      { key: 'phone', label: 'Phone' },
-      { key: 'status', label: 'Status' },
-    ]}
-    data={employees}
+    columns={columns}
+    formFields={formFields}
+    api={employeesApi}
   />
 );
 

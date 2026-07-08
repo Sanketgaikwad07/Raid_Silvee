@@ -1,9 +1,23 @@
 import React from 'react';
 import MasterPageTemplate from './MasterPageTemplate';
+import { banksApi } from '../lib/mastersApi';
+import { STATUS_OPTIONS } from '../lib/masterOptions';
 
-const banks = [
-  { name: 'State Bank of India', branch: 'Pune', accountNo: '1234567890', status: 'Active' },
-  { name: 'HDFC Bank', branch: 'Mumbai', accountNo: '0987654321', status: 'Active' },
+const formFields = [
+  { name: 'bankName', label: 'Bank Name', required: true },
+  { name: 'branch', label: 'Branch', required: true },
+  { name: 'accountHolderName', label: 'Account Holder Name', required: true },
+  { name: 'accountNo', label: 'Account No.', required: true },
+  { name: 'ifscCode', label: 'IFSC Code', required: true, placeholder: 'SBIN0001234' },
+  { name: 'status', label: 'Status', type: 'select', required: true, options: STATUS_OPTIONS, defaultValue: 'ACTIVE' },
+];
+
+const columns = [
+  { key: 'bankName', label: 'Bank Name' },
+  { key: 'branch', label: 'Branch' },
+  { key: 'accountNo', label: 'Account No' },
+  { key: 'ifscCode', label: 'IFSC' },
+  { key: 'status', label: 'Status' },
 ];
 
 const BankMaster = () => (
@@ -11,13 +25,9 @@ const BankMaster = () => (
     title="Bank Master"
     description="Manage bank account details"
     addButtonText="Add Bank"
-    columns={[
-      { key: 'name', label: 'Bank Name' },
-      { key: 'branch', label: 'Branch' },
-      { key: 'accountNo', label: 'Account No' },
-      { key: 'status', label: 'Status' },
-    ]}
-    data={banks}
+    columns={columns}
+    formFields={formFields}
+    api={banksApi}
   />
 );
 

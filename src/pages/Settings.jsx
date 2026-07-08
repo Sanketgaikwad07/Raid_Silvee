@@ -1,22 +1,28 @@
-import React, { useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import {
   FiHome, FiSettings, FiGlobe, FiCalendar, FiUsers, FiLock,
-  FiHardDrive, FiHash, FiPrinter, FiSave, FiX
+  FiHardDrive, FiHash, FiPrinter, FiSave, FiX, FiStar
 } from 'react-icons/fi';
+import { financialYearsApi, usersApi } from '../lib/mastersApi';
+import { PERMISSION_MODULE_OPTIONS, PERMISSION_ACTION_OPTIONS } from '../lib/masterOptions';
+import { ApiError } from '../lib/apiClient';
 import './ModulePages.css';
 import './Settings.css';
 
 const tabsList = [
-  { key: 'company', label: 'Company Settings', icon: FiSettings },
-  { key: 'general', label: 'General Settings', icon: FiGlobe },
-  { key: 'financial', label: 'Financial Year', icon: FiCalendar },
-  { key: 'users', label: 'Users & Roles', icon: FiUsers },
-  { key: 'permissions', label: 'Permissions', icon: FiLock },
-  
-  { key: 'backup', label: 'Backup', icon: FiHardDrive },
-  { key: 'numbering', label: 'Document Numbering', icon: FiHash },
-  { key: 'print', label: 'Print Settings', icon: FiPrinter },
+  { key: 'company', label: 'Company Settings', icon: FiSettings, segment: 'company' },
+  { key: 'general', label: 'General Settings', icon: FiGlobe, segment: 'general' },
+  { key: 'financial', label: 'Financial Year', icon: FiCalendar, segment: 'financial-year' },
+  { key: 'users', label: 'Users & Roles', icon: FiUsers, segment: 'users-roles' },
+  { key: 'permissions', label: 'Permissions', icon: FiLock, segment: 'permissions' },
+  { key: 'backup', label: 'Backup', icon: FiHardDrive, segment: 'backup' },
+  { key: 'numbering', label: 'Document Numbering', icon: FiHash, segment: 'document-numbering' },
+  { key: 'print', label: 'Print Settings', icon: FiPrinter, segment: 'print' },
 ];
+
+const segmentToTabKey = Object.fromEntries(tabsList.map((t) => [t.segment, t.key]));
+const tabKeyToSegment = Object.fromEntries(tabsList.map((t) => [t.key, t.segment]));
 
 const formFieldStyle = {
   display: 'flex',
@@ -53,7 +59,20 @@ const sectionTitleStyle = {
 };
 
 const Settings = () => {
-  const [activeTab, setActiveTab] = useState('company');
+  const location = useLocation();
+  const navigate = useNavigate();
+  const currentSegment = location.pathname.split('/').filter(Boolean).pop();
+  const [activeTab, setActiveTabState] = useState(segmentToTabKey[currentSegment] || 'company');
+
+  useEffect(() => {
+    const segment = location.pathname.split('/').filter(Boolean).pop();
+    setActiveTabState(segmentToTabKey[segment] || 'company');
+  }, [location.pathname]);
+
+  const setActiveTab = (tabKey) => {
+    setActiveTabState(tabKey);
+    navigate(`/settings/${tabKeyToSegment[tabKey] || tabKey}`);
+  };
 
   const renderCompanySettings = () => (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
@@ -262,15 +281,63 @@ const Settings = () => {
     </div>
   );
 
-  const financialYears = [
-    { id: 1, name: 'FY 2023-24', start: '01/04/2023', end: '31/03/2024', active: false },
-    { id: 2, name: 'FY 2024-25', start: '01/04/2024', end: '31/03/2025', active: true },
-  ];
+  const [financialYears, setFinancialYears] = useState([]);
+  const [fyLoading, setFyLoading] = useState(false);
+  const [fyError, setFyError] = useState('');
+  const [fyForm, setFyForm] = useState({ name: '', startDate: '', endDate: '' });
+  const [fySaving, setFySaving] = useState(false);
+
+  const loadFinancialYears = useCallback(async () => {
+    setFyLoading(true);
+    setFyError('');
+    try {
+      const data = await financialYearsApi.list({ size: 100 });
+      setFinancialYears(data.content ?? []);
+    } catch (err) {
+      setFyError(err instanceof ApiError ? err.message : 'Failed to load financial years');
+    } finally {
+      setFyLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (activeTab === 'financial') loadFinancialYears();
+  }, [activeTab, loadFinancialYears]);
+
+  const handleSetActiveYear = async (id) => {
+    try {
+      await financialYearsApi.setActive(id);
+      await loadFinancialYears();
+    } catch (err) {
+      window.alert(err instanceof ApiError ? err.message : 'Failed to activate financial year');
+    }
+  };
+
+  const handleCreateFinancialYear = async () => {
+    setFySaving(true);
+    setFyError('');
+    try {
+      await financialYearsApi.create({
+        name: fyForm.name,
+        startDate: fyForm.startDate,
+        endDate: fyForm.endDate,
+        activeYear: false,
+        status: 'ACTIVE',
+      });
+      setFyForm({ name: '', startDate: '', endDate: '' });
+      await loadFinancialYears();
+    } catch (err) {
+      setFyError(err instanceof ApiError ? err.message : 'Failed to create financial year');
+    } finally {
+      setFySaving(false);
+    }
+  };
 
   const renderFinancialYear = () => (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
       <div>
         <h3 style={sectionTitleStyle}>Financial Years</h3>
+        {fyError && <p style={{ color: 'var(--accent-red, #dc2626)', fontSize: 13 }}>{fyError}</p>}
         <div className="card">
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead>
@@ -283,14 +350,22 @@ const Settings = () => {
               </tr>
             </thead>
             <tbody>
+              {fyLoading && <tr><td colSpan={5} style={{ padding: 8, textAlign: 'center' }}>Loading...</td></tr>}
+              {!fyLoading && financialYears.length === 0 && (
+                <tr><td colSpan={5} style={{ padding: 8, textAlign: 'center' }}>No financial years yet</td></tr>
+              )}
               {financialYears.map((fy) => (
                 <tr key={fy.id}>
                   <td style={{ padding: '8px' }}>{fy.name}</td>
-                  <td style={{ padding: '8px' }}>{fy.start}</td>
-                  <td style={{ padding: '8px' }}>{fy.end}</td>
-                  <td style={{ padding: '8px' }}>{fy.active ? 'Active' : 'Inactive'}</td>
+                  <td style={{ padding: '8px' }}>{fy.startDate}</td>
+                  <td style={{ padding: '8px' }}>{fy.endDate}</td>
+                  <td style={{ padding: '8px' }}>
+                    {fy.activeYear ? <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}><FiStar size={12} color="#f59e0b" /> Active</span> : 'Inactive'}
+                  </td>
                   <td style={{ padding: '8px', textAlign: 'right' }}>
-                    <button className="btn btn--outline">Set Active</button>
+                    {!fy.activeYear && (
+                      <button className="btn btn--outline" onClick={() => handleSetActiveYear(fy.id)}>Set Active</button>
+                    )}
                   </td>
                 </tr>
               ))}
@@ -304,33 +379,113 @@ const Settings = () => {
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 16 }}>
           <div style={formFieldStyle}>
             <label style={labelStyle}>Name</label>
-            <input style={inputStyle} />
+            <input
+              style={inputStyle}
+              value={fyForm.name}
+              placeholder="FY2025-26"
+              onChange={(e) => setFyForm((prev) => ({ ...prev, name: e.target.value }))}
+            />
           </div>
           <div style={formFieldStyle}>
             <label style={labelStyle}>Start Date</label>
-            <input style={inputStyle} type="date" />
+            <input
+              style={inputStyle}
+              type="date"
+              value={fyForm.startDate}
+              onChange={(e) => setFyForm((prev) => ({ ...prev, startDate: e.target.value }))}
+            />
           </div>
           <div style={formFieldStyle}>
             <label style={labelStyle}>End Date</label>
-            <input style={inputStyle} type="date" />
+            <input
+              style={inputStyle}
+              type="date"
+              value={fyForm.endDate}
+              onChange={(e) => setFyForm((prev) => ({ ...prev, endDate: e.target.value }))}
+            />
           </div>
         </div>
       </div>
       <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10 }}>
-        <button className="btn btn--primary">Create</button>
+        <button
+          className="btn btn--primary"
+          disabled={fySaving || !fyForm.name || !fyForm.startDate || !fyForm.endDate}
+          onClick={handleCreateFinancialYear}
+        >
+          {fySaving ? 'Creating...' : 'Create'}
+        </button>
       </div>
     </div>
   );
 
-  const mockUsers = [
-    { id: 1, name: 'Admin', email: 'admin@silvee925.com', role: 'Super Admin', status: 'Active' },
-    { id: 2, name: 'Mahesh', email: 'mahesh@silvee925.com', role: 'Salesman', status: 'Active' },
-  ];
+  const [users, setUsers] = useState([]);
+  const [usersLoading, setUsersLoading] = useState(false);
+  const [usersError, setUsersError] = useState('');
+  const [newUserForm, setNewUserForm] = useState({
+    employeeCode: '', fullName: '', email: '', phone: '', designation: '', password: '',
+  });
+  const [selectedPermissions, setSelectedPermissions] = useState(() => new Set());
+  const [creatingUser, setCreatingUser] = useState(false);
+
+  const loadUsers = useCallback(async () => {
+    setUsersLoading(true);
+    setUsersError('');
+    try {
+      const data = await usersApi.list();
+      setUsers(data ?? []);
+    } catch (err) {
+      setUsersError(err instanceof ApiError ? err.message : 'Failed to load users');
+    } finally {
+      setUsersLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (activeTab === 'users') loadUsers();
+  }, [activeTab, loadUsers]);
+
+  const toggleUserStatus = async (user) => {
+    try {
+      await (user.active ? usersApi.deactivate(user.id) : usersApi.activate(user.id));
+      await loadUsers();
+    } catch (err) {
+      window.alert(err instanceof ApiError ? err.message : 'Failed to update user status');
+    }
+  };
+
+  const togglePermission = (module, action) => {
+    const key = `${module}:${action}`;
+    setSelectedPermissions((prev) => {
+      const next = new Set(prev);
+      if (next.has(key)) next.delete(key); else next.add(key);
+      return next;
+    });
+  };
+
+  const handleCreateUser = async () => {
+    setCreatingUser(true);
+    setUsersError('');
+    try {
+      const permissions = Array.from(selectedPermissions).map((key) => {
+        const [module, action] = key.split(':');
+        return { module, action };
+      });
+      await usersApi.createEmployeeAccount({ ...newUserForm, permissions });
+      setNewUserForm({ employeeCode: '', fullName: '', email: '', phone: '', designation: '', password: '' });
+      setSelectedPermissions(new Set());
+      await loadUsers();
+    } catch (err) {
+      setUsersError(err instanceof ApiError ? (err.errors?.join('; ') || err.message) : 'Failed to create user');
+    } finally {
+      setCreatingUser(false);
+    }
+  };
 
   const renderUsersRoles = () => (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
       <div>
         <h3 style={sectionTitleStyle}>Users</h3>
+        {usersError && <p style={{ color: 'var(--accent-red, #dc2626)', fontSize: 13 }}>{usersError}</p>}
         <div className="card">
           <table style={{ width: '100%' }}>
             <thead>
@@ -343,14 +498,22 @@ const Settings = () => {
               </tr>
             </thead>
             <tbody>
-              {mockUsers.map((u) => (
+              {usersLoading && <tr><td colSpan={5} style={{ padding: 8, textAlign: 'center' }}>Loading...</td></tr>}
+              {!usersLoading && users.length === 0 && (
+                <tr><td colSpan={5} style={{ padding: 8, textAlign: 'center' }}>No users yet</td></tr>
+              )}
+              {users.map((u) => (
                 <tr key={u.id}>
-                  <td style={{ padding: 8 }}>{u.name}</td>
+                  <td style={{ padding: 8 }}>{u.fullName}</td>
                   <td style={{ padding: 8 }}>{u.email}</td>
                   <td style={{ padding: 8 }}>{u.role}</td>
-                  <td style={{ padding: 8 }}>{u.status}</td>
+                  <td style={{ padding: 8 }}>{u.active ? 'Active' : 'Inactive'}</td>
                   <td style={{ padding: 8, textAlign: 'right' }}>
-                    <button className="btn btn--outline">Edit</button>
+                    {u.role !== 'ADMIN' && (
+                      <button className="btn btn--outline" onClick={() => toggleUserStatus(u)}>
+                        {u.active ? 'Deactivate' : 'Activate'}
+                      </button>
+                    )}
                   </td>
                 </tr>
               ))}
@@ -359,27 +522,72 @@ const Settings = () => {
         </div>
       </div>
       <div>
-        <h3 style={sectionTitleStyle}>Add User</h3>
+        <h3 style={sectionTitleStyle}>Add SALES User</h3>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 16 }}>
           <div style={formFieldStyle}>
+            <label style={labelStyle}>Employee Code</label>
+            <input style={inputStyle} value={newUserForm.employeeCode} onChange={(e) => setNewUserForm((p) => ({ ...p, employeeCode: e.target.value }))} />
+          </div>
+          <div style={formFieldStyle}>
             <label style={labelStyle}>Full Name</label>
-            <input style={inputStyle} />
+            <input style={inputStyle} value={newUserForm.fullName} onChange={(e) => setNewUserForm((p) => ({ ...p, fullName: e.target.value }))} />
+          </div>
+          <div style={formFieldStyle}>
+            <label style={labelStyle}>Designation</label>
+            <input style={inputStyle} value={newUserForm.designation} onChange={(e) => setNewUserForm((p) => ({ ...p, designation: e.target.value }))} />
+          </div>
+          <div style={formFieldStyle}>
+            <label style={labelStyle}>Phone</label>
+            <input style={inputStyle} value={newUserForm.phone} onChange={(e) => setNewUserForm((p) => ({ ...p, phone: e.target.value }))} />
           </div>
           <div style={formFieldStyle}>
             <label style={labelStyle}>Email</label>
-            <input style={inputStyle} type="email" />
+            <input style={inputStyle} type="email" value={newUserForm.email} onChange={(e) => setNewUserForm((p) => ({ ...p, email: e.target.value }))} />
           </div>
           <div style={formFieldStyle}>
-            <label style={labelStyle}>Role</label>
-            <select style={inputStyle}>
-              <option>Salesman</option>
-              <option>Manager</option>
-              <option>Accountant</option>
-            </select>
+            <label style={labelStyle}>Password</label>
+            <input style={inputStyle} type="password" value={newUserForm.password} onChange={(e) => setNewUserForm((p) => ({ ...p, password: e.target.value }))} />
           </div>
         </div>
+
+        <h4 style={{ ...sectionTitleStyle, fontSize: 13, marginTop: 20 }}>Module Permissions</h4>
+        <div className="card" style={{ maxHeight: 260, overflowY: 'auto' }}>
+          <table style={{ width: '100%' }}>
+            <thead>
+              <tr>
+                <th style={{ textAlign: 'left', padding: 8 }}>Module</th>
+                {PERMISSION_ACTION_OPTIONS.map((action) => (
+                  <th key={action} style={{ textAlign: 'center', padding: 8 }}>{action}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {PERMISSION_MODULE_OPTIONS.map((module) => (
+                <tr key={module}>
+                  <td style={{ padding: 8 }}>{module.replace(/_/g, ' ')}</td>
+                  {PERMISSION_ACTION_OPTIONS.map((action) => (
+                    <td key={action} style={{ padding: 8, textAlign: 'center' }}>
+                      <input
+                        type="checkbox"
+                        checked={selectedPermissions.has(`${module}:${action}`)}
+                        onChange={() => togglePermission(module, action)}
+                      />
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
         <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 12 }}>
-          <button className="btn btn--primary">Add User</button>
+          <button
+            className="btn btn--primary"
+            disabled={creatingUser || !newUserForm.employeeCode || !newUserForm.fullName || !newUserForm.email || !newUserForm.password || selectedPermissions.size === 0}
+            onClick={handleCreateUser}
+          >
+            {creatingUser ? 'Creating...' : 'Add User'}
+          </button>
         </div>
       </div>
     </div>

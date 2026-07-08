@@ -164,7 +164,6 @@ export const sidebarNavItems = [
     { id: 'accounts-trial-balance', label: 'Trial Balance', path: '/accounts/trial-balance' },
     { id: 'accounts-day-book', label: 'Day Book', path: '/accounts/day-book' },
   ] },
-  { id: 'reports', label: 'Reports', icon: 'reports', path: '/reports', children: [] },
   { id: 'gst', label: 'GST', icon: 'gst', path: '/gst', children: [
     { id: 'gst-filing', label: 'GST Filing', path: '/gst/filing' },
     { id: 'gst-returns', label: 'GST Returns', path: '/gst/returns' },

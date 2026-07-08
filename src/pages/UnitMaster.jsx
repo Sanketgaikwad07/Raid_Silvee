@@ -1,10 +1,18 @@
 import React from 'react';
 import MasterPageTemplate from './MasterPageTemplate';
+import { unitsApi } from '../lib/mastersApi';
+import { STATUS_OPTIONS } from '../lib/masterOptions';
 
-const units = [
-  { name: 'Gram', abbreviation: 'gm', status: 'Active' },
-  { name: 'Piece', abbreviation: 'pcs', status: 'Active' },
-  { name: 'Set', abbreviation: 'set', status: 'Inactive' },
+const formFields = [
+  { name: 'name', label: 'Unit Name', required: true },
+  { name: 'abbreviation', label: 'Abbreviation', required: true },
+  { name: 'status', label: 'Status', type: 'select', required: true, options: STATUS_OPTIONS, defaultValue: 'ACTIVE' },
+];
+
+const columns = [
+  { key: 'name', label: 'Unit Name' },
+  { key: 'abbreviation', label: 'Abbreviation' },
+  { key: 'status', label: 'Status' },
 ];
 
 const UnitMaster = () => (
@@ -12,12 +20,9 @@ const UnitMaster = () => (
     title="Unit Master"
     description="Manage your measurement units"
     addButtonText="Add Unit"
-    columns={[
-      { key: 'name', label: 'Unit Name' },
-      { key: 'abbreviation', label: 'Abbreviation' },
-      { key: 'status', label: 'Status' },
-    ]}
-    data={units}
+    columns={columns}
+    formFields={formFields}
+    api={unitsApi}
   />
 );
 

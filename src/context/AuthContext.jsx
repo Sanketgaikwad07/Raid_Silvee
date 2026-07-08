@@ -1,43 +1,40 @@
 import React, { createContext, useContext, useState, useCallback } from 'react';
+import { api, ApiError, loadAuthState, saveAuthState } from '../lib/apiClient';
 
 const AuthContext = createContext(null);
 
-// Default credentials
-const USERS = [
-  { username: 'admin', password: 'admin123', role: 'admin', name: 'Super Admin', avatar: 'A' },
-  { username: 'sales', password: 'sales123', role: 'salesman', name: 'Sales User', avatar: 'S' },
-];
+// Modules a SALES user can reach purely by role; fine-grained per-master access
+// is additionally gated by the permissions the ADMIN granted (see hasAccess below).
+const SALES_ROLE_MODULES = ['sales', 'salesman', 'reports'];
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(() => {
-    const saved = sessionStorage.getItem('silvee_user');
-    return saved ? JSON.parse(saved) : null;
-  });
+  const [user, setUser] = useState(() => loadAuthState()?.user ?? null);
 
-  const login = useCallback((username, password) => {
-    const found = USERS.find(
-      (u) => u.username === username && u.password === password
-    );
-    if (found) {
-      const userData = { username: found.username, role: found.role, name: found.name, avatar: found.avatar };
-      setUser(userData);
-      sessionStorage.setItem('silvee_user', JSON.stringify(userData));
-      return { success: true, user: userData };
+  const login = useCallback(async (email, password) => {
+    try {
+      const data = await api.post('/api/auth/login', { email, password }, { auth: false });
+      saveAuthState({ accessToken: data.accessToken, refreshToken: data.refreshToken, user: data.user });
+      setUser(data.user);
+      return { success: true, user: data.user };
+    } catch (err) {
+      const message = err instanceof ApiError ? err.message : 'Unable to reach the server';
+      return { success: false, message };
     }
-    return { success: false, message: 'Invalid username or password' };
   }, []);
 
   const logout = useCallback(() => {
+    const state = loadAuthState();
+    if (state?.refreshToken) {
+      api.post('/api/auth/logout', { refreshToken: state.refreshToken }, { auth: false }).catch(() => {});
+    }
+    saveAuthState(null);
     setUser(null);
-    sessionStorage.removeItem('silvee_user');
   }, []);
 
   const hasAccess = useCallback((module) => {
     if (!user) return false;
-    if (user.role === 'admin') return true;
-    // Salesman can only access sales and reports
-    const salesmanModules = ['sales', 'salesman', 'reports'];
-    return salesmanModules.includes(module);
+    if (user.role === 'ADMIN') return true;
+    return SALES_ROLE_MODULES.includes(module);
   }, [user]);
 
   return (

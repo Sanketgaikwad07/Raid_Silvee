@@ -60,7 +60,10 @@ const Header = () => {
     navigate('/login');
   };
 
-  const roleLabel = user?.role === 'admin' ? 'Admin' : 'Salesman';
+  const isAdmin = user?.role === 'ADMIN';
+  const roleLabel = isAdmin ? 'Admin' : 'Salesman';
+  const displayName = user?.fullName || 'User';
+  const avatarInitial = displayName.charAt(0).toUpperCase();
   const roleBadgeStyle = {
     display: 'inline-block',
     padding: '2px 8px',
@@ -69,10 +72,10 @@ const Header = () => {
     fontWeight: 700,
     textTransform: 'uppercase',
     letterSpacing: '0.05em',
-    background: user?.role === 'admin'
+    background: isAdmin
       ? 'linear-gradient(135deg, rgba(15, 98, 254, 0.12), rgba(139, 92, 246, 0.12))'
       : 'linear-gradient(135deg, rgba(34, 197, 94, 0.12), rgba(6, 182, 212, 0.12))',
-    color: user?.role === 'admin' ? '#3b82f6' : '#22c55e',
+    color: isAdmin ? '#3b82f6' : '#22c55e',
   };
 
   return (
@@ -126,10 +129,10 @@ const Header = () => {
         </button>
 
         <div className="header__admin">
-          <div className="header__admin-avatar">{user?.avatar || 'U'}</div>
+          <div className="header__admin-avatar">{avatarInitial}</div>
           <div className="header__admin-info">
             <span style={roleBadgeStyle}>{roleLabel}</span>
-            <span className="header__admin-name">{user?.name || 'User'}</span>
+            <span className="header__admin-name">{displayName}</span>
           </div>
         </div>
 

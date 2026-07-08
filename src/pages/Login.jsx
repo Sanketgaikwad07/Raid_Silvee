@@ -2,58 +2,38 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import {
-  FiShield, FiTrendingUp, FiUser, FiLock, FiEye, FiEyeOff,
+  FiShield, FiTrendingUp, FiMail, FiLock, FiEye, FiEyeOff,
   FiArrowRight, FiAlertCircle, FiCheck
 } from 'react-icons/fi';
 import './Login.css';
 
 const Login = () => {
   const [selectedRole, setSelectedRole] = useState('admin');
-  const [username, setUsername] = useState('admin');
-  const [password, setPassword] = useState('admin123');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
 
-  const handleRoleSelect = (role) => {
-    setSelectedRole(role);
-    setError('');
-    if (role === 'admin') {
-      setUsername('admin');
-      setPassword('admin123');
-    } else {
-      setUsername('sales');
-      setPassword('sales123');
-    }
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
 
-    if (!username.trim() || !password.trim()) {
-      setError('Please enter both username and password');
+    if (!email.trim() || !password.trim()) {
+      setError('Please enter both email and password');
       return;
     }
 
     setIsLoading(true);
-    await new Promise((resolve) => setTimeout(resolve, 800));
-
-    const result = login(username, password);
+    const result = await login(email.trim(), password);
     if (result.success) {
       navigate('/');
     } else {
       setError(result.message);
     }
     setIsLoading(false);
-  };
-
-  const handleCredentialClick = (user, pass) => {
-    setUsername(user);
-    setPassword(pass);
-    setError('');
   };
 
   return (
@@ -92,14 +72,14 @@ const Login = () => {
           <p className="login-card__tagline">ERP System</p>
           <hr className="login-card__divider" />
           <h2 className="login-card__title">Sign In</h2>
-          <p className="login-card__subtitle">Choose your role and enter credentials</p>
+          <p className="login-card__subtitle">Enter your ERP account credentials</p>
         </div>
 
-        {/* Role Selection */}
+        {/* Role indicator (informational; actual role comes from the server) */}
         <div className="login-role-selector">
           <div
             className={`login-role-card ${selectedRole === 'admin' ? 'active' : ''}`}
-            onClick={() => handleRoleSelect('admin')}
+            onClick={() => setSelectedRole('admin')}
           >
             <div className="login-role-card__check"><FiCheck size={10} /></div>
             <div className="login-role-card__icon">
@@ -110,7 +90,7 @@ const Login = () => {
           </div>
           <div
             className={`login-role-card ${selectedRole === 'salesman' ? 'active' : ''}`}
-            onClick={() => handleRoleSelect('salesman')}
+            onClick={() => setSelectedRole('salesman')}
           >
             <div className="login-role-card__check"><FiCheck size={10} /></div>
             <div className="login-role-card__icon">
@@ -124,16 +104,16 @@ const Login = () => {
         {/* Form */}
         <form className="login-form" onSubmit={handleSubmit}>
           <div className="login-field">
-            <label className="login-field__label">Username</label>
+            <label className="login-field__label">Email</label>
             <div className="login-field__input-wrap">
-              <FiUser size={15} className="login-field__icon" />
+              <FiMail size={15} className="login-field__icon" />
               <input
-                id="login-username"
-                type="text"
+                id="login-email"
+                type="email"
                 className="login-field__input"
-                placeholder="Enter your username"
-                value={username}
-                onChange={(e) => { setUsername(e.target.value); setError(''); }}
+                placeholder="Enter your email"
+                value={email}
+                onChange={(e) => { setEmail(e.target.value); setError(''); }}
                 autoComplete="username"
               />
             </div>
@@ -181,27 +161,6 @@ const Login = () => {
             {isLoading && <span className="login-btn__spinner"></span>}
           </button>
         </form>
-
-        {/* Default Credentials */}
-        <div className="login-credentials">
-          <div className="login-credentials__title">Default Credentials</div>
-          <div className="login-credentials__grid">
-            <div
-              className="login-credentials__item"
-              onClick={() => handleCredentialClick('admin', 'admin123')}
-            >
-              <div className="login-credentials__item-role">👑 Admin</div>
-              <div className="login-credentials__item-info">admin / admin123</div>
-            </div>
-            <div
-              className="login-credentials__item"
-              onClick={() => handleCredentialClick('sales', 'sales123')}
-            >
-              <div className="login-credentials__item-role">📊 Salesman</div>
-              <div className="login-credentials__item-info">sales / sales123</div>
-            </div>
-          </div>
-        </div>
 
         <div className="login-footer">
           <p className="login-footer__text">© 2025 Silvee925 Jewels Pvt. Ltd.</p>

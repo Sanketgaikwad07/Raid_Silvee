@@ -31,7 +31,6 @@ import AccountsSubPage from './pages/AccountsSubPage';
 import SalesmanSubPage from './pages/SalesmanSubPage';
 import GstSubPage from './pages/GstSubPage';
 import ToolsSubPage from './pages/ToolsSubPage';
-import SettingsSubPage from './pages/SettingsSubPage';
 import Sales from './pages/Sales';
 import SalesSubPage from './pages/SalesSubPage';
 import RegisteredCustomers from './pages/RegisteredCustomers';
@@ -168,16 +167,8 @@ const App = () => {
         <Route path="tools/database-backup" element={<ProtectedRoute module="tools"><ToolsSubPage title="Database Backup" description="Backup and restore system data." iconKey="backup" /></ProtectedRoute>} />
         <Route path="tools/audit-log" element={<ProtectedRoute module="tools"><ToolsSubPage title="Audit Log" description="Review system activity and user actions." iconKey="audit" /></ProtectedRoute>} />
 
-        {/* Settings - Admin Only */}
+        {/* Settings - Admin Only. Settings.jsx owns every settings/* sub-path via its own tabs. */}
         <Route path="settings/*" element={<ProtectedRoute module="settings"><Settings /></ProtectedRoute>} />
-        <Route path="settings/company" element={<ProtectedRoute module="settings"><SettingsSubPage title="Company Settings" description="Manage company address and business details." iconKey="company" /></ProtectedRoute>} />
-        <Route path="settings/general" element={<ProtectedRoute module="settings"><SettingsSubPage title="General Settings" description="Configure app defaults and localization." iconKey="general" /></ProtectedRoute>} />
-        <Route path="settings/financial-year" element={<ProtectedRoute module="settings"><SettingsSubPage title="Financial Year" description="Manage financial year configuration." iconKey="financial" /></ProtectedRoute>} />
-        <Route path="settings/users-roles" element={<ProtectedRoute module="settings"><SettingsSubPage title="Users & Roles" description="Manage users, roles, and access rights." iconKey="users" /></ProtectedRoute>} />
-        <Route path="settings/permissions" element={<ProtectedRoute module="settings"><SettingsSubPage title="Permissions" description="Configure permissions and security settings." iconKey="permissions" /></ProtectedRoute>} />
-        <Route path="settings/backup" element={<ProtectedRoute module="settings"><SettingsSubPage title="Backup Settings" description="Configure backup and restore options." iconKey="backup" /></ProtectedRoute>} />
-        <Route path="settings/document-numbering" element={<ProtectedRoute module="settings"><SettingsSubPage title="Document Numbering" description="Configure numbering formats for invoices and vouchers." iconKey="numbering" /></ProtectedRoute>} />
-        <Route path="settings/print" element={<ProtectedRoute module="settings"><SettingsSubPage title="Print Settings" description="Manage print templates and settings." iconKey="print" /></ProtectedRoute>} />
 
         {/* Fallback */}
         <Route path="*" element={<Dashboard />} />

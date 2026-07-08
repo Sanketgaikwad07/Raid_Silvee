@@ -72,51 +72,55 @@ const Sidebar = () => {
       </div>
 
       {/* Role Badge */}
-      {user && (
-        <div className="sidebar__role-badge" style={{
-          margin: '0 1rem 0.75rem',
-          padding: '0.5rem 0.75rem',
-          background: user.role === 'admin'
-            ? 'linear-gradient(135deg, rgba(15, 98, 254, 0.12), rgba(139, 92, 246, 0.08))'
-            : 'linear-gradient(135deg, rgba(34, 197, 94, 0.12), rgba(6, 182, 212, 0.08))',
-          borderRadius: '10px',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '0.5rem',
-          border: `1px solid ${user.role === 'admin' ? 'rgba(15, 98, 254, 0.15)' : 'rgba(34, 197, 94, 0.15)'}`,
-        }}>
-          <div style={{
-            width: '28px',
-            height: '28px',
-            borderRadius: '8px',
-            background: user.role === 'admin'
-              ? 'linear-gradient(135deg, #0f62fe, #8b5cf6)'
-              : 'linear-gradient(135deg, #22c55e, #06b6d4)',
+      {user && (() => {
+        const isAdmin = user.role === 'ADMIN';
+        const displayName = user.fullName || 'User';
+        return (
+          <div className="sidebar__role-badge" style={{
+            margin: '0 1rem 0.75rem',
+            padding: '0.5rem 0.75rem',
+            background: isAdmin
+              ? 'linear-gradient(135deg, rgba(15, 98, 254, 0.12), rgba(139, 92, 246, 0.08))'
+              : 'linear-gradient(135deg, rgba(34, 197, 94, 0.12), rgba(6, 182, 212, 0.08))',
+            borderRadius: '10px',
             display: 'flex',
             alignItems: 'center',
-            justifyContent: 'center',
-            color: '#fff',
-            fontSize: '0.7rem',
-            fontWeight: 700,
+            gap: '0.5rem',
+            border: `1px solid ${isAdmin ? 'rgba(15, 98, 254, 0.15)' : 'rgba(34, 197, 94, 0.15)'}`,
           }}>
-            {user.avatar}
-          </div>
-          <div>
-            <div style={{ fontSize: '0.75rem', fontWeight: 600, color: '#e2e8f0' }}>
-              {user.name}
-            </div>
             <div style={{
-              fontSize: '0.65rem',
-              color: user.role === 'admin' ? '#60a5fa' : '#4ade80',
-              fontWeight: 500,
-              textTransform: 'uppercase',
-              letterSpacing: '0.05em',
+              width: '28px',
+              height: '28px',
+              borderRadius: '8px',
+              background: isAdmin
+                ? 'linear-gradient(135deg, #0f62fe, #8b5cf6)'
+                : 'linear-gradient(135deg, #22c55e, #06b6d4)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: '#fff',
+              fontSize: '0.7rem',
+              fontWeight: 700,
             }}>
-              {user.role === 'admin' ? '👑 Admin' : '📊 Salesman'}
+              {displayName.charAt(0).toUpperCase()}
+            </div>
+            <div>
+              <div style={{ fontSize: '0.75rem', fontWeight: 600, color: '#e2e8f0' }}>
+                {displayName}
+              </div>
+              <div style={{
+                fontSize: '0.65rem',
+                color: isAdmin ? '#60a5fa' : '#4ade80',
+                fontWeight: 500,
+                textTransform: 'uppercase',
+                letterSpacing: '0.05em',
+              }}>
+                {isAdmin ? '👑 Admin' : '📊 Salesman'}
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        );
+      })()}
 
       {/* Navigation */}
       <nav className="sidebar__nav">
