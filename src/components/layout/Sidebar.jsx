@@ -1,11 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import {
   FiGrid, FiLayers, FiShoppingCart, FiBox, FiDollarSign,
   FiUsers, FiBookOpen, FiBarChart2, FiFileText, FiTool,
-  FiSettings, FiChevronDown, FiChevronRight, FiMail, FiPhone
+  FiSettings, FiChevronDown, FiChevronRight, FiMail, FiPhone, FiLock
 } from 'react-icons/fi';
 import { sidebarNavItems } from '../../data/mockData';
+import { useAuth } from '../../context/AuthContext';
 import './Sidebar.css';
 
 const iconMap = {
@@ -22,9 +23,34 @@ const iconMap = {
   settings: FiSettings,
 };
 
+// Map sidebar item IDs to module names for access control
+const moduleMap = {
+  dashboard: null, // always accessible
+  masters: 'masters',
+  purchase: 'purchase',
+  inventory: 'inventory',
+  sales: 'sales',
+  salesman: 'salesman',
+  accounts: 'accounts',
+  reports: 'reports',
+  gst: 'gst',
+  tools: 'tools',
+  settings: 'settings',
+};
+
 const Sidebar = () => {
   const location = useLocation();
+  const { user, hasAccess } = useAuth();
   const [expandedItems, setExpandedItems] = useState(['masters', 'settings']);
+
+  // Filter nav items based on user role
+  const filteredNavItems = useMemo(() => {
+    return sidebarNavItems.filter((item) => {
+      const module = moduleMap[item.id];
+      if (module === null || module === undefined) return true; // dashboard is always visible
+      return hasAccess(module);
+    });
+  }, [user, hasAccess]);
 
   const toggleExpand = (id) => {
     setExpandedItems(prev =>
@@ -45,9 +71,56 @@ const Sidebar = () => {
         </div>
       </div>
 
+      {/* Role Badge */}
+      {user && (
+        <div className="sidebar__role-badge" style={{
+          margin: '0 1rem 0.75rem',
+          padding: '0.5rem 0.75rem',
+          background: user.role === 'admin'
+            ? 'linear-gradient(135deg, rgba(15, 98, 254, 0.12), rgba(139, 92, 246, 0.08))'
+            : 'linear-gradient(135deg, rgba(34, 197, 94, 0.12), rgba(6, 182, 212, 0.08))',
+          borderRadius: '10px',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '0.5rem',
+          border: `1px solid ${user.role === 'admin' ? 'rgba(15, 98, 254, 0.15)' : 'rgba(34, 197, 94, 0.15)'}`,
+        }}>
+          <div style={{
+            width: '28px',
+            height: '28px',
+            borderRadius: '8px',
+            background: user.role === 'admin'
+              ? 'linear-gradient(135deg, #0f62fe, #8b5cf6)'
+              : 'linear-gradient(135deg, #22c55e, #06b6d4)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            color: '#fff',
+            fontSize: '0.7rem',
+            fontWeight: 700,
+          }}>
+            {user.avatar}
+          </div>
+          <div>
+            <div style={{ fontSize: '0.75rem', fontWeight: 600, color: '#e2e8f0' }}>
+              {user.name}
+            </div>
+            <div style={{
+              fontSize: '0.65rem',
+              color: user.role === 'admin' ? '#60a5fa' : '#4ade80',
+              fontWeight: 500,
+              textTransform: 'uppercase',
+              letterSpacing: '0.05em',
+            }}>
+              {user.role === 'admin' ? '👑 Admin' : '📊 Salesman'}
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Navigation */}
       <nav className="sidebar__nav">
-        {sidebarNavItems.map((item) => {
+        {filteredNavItems.map((item) => {
           const Icon = iconMap[item.icon];
           const hasChildren = item.children && item.children.length > 0;
           const isExpanded = expandedItems.includes(item.id);

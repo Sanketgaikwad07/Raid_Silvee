@@ -1,0 +1,67 @@
+package com.silvee925.erp.controller;
+
+import com.silvee925.erp.common.ApiResponse;
+import com.silvee925.erp.common.PagedResponse;
+import com.silvee925.erp.dto.request.SupplierRequest;
+import com.silvee925.erp.dto.response.SupplierResponse;
+import com.silvee925.erp.entity.enums.Status;
+import com.silvee925.erp.service.SupplierService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping("/api/masters/suppliers")
+@RequiredArgsConstructor
+@Tag(name = "Supplier Master", description = "Manage suppliers")
+public class SupplierController {
+
+    private final SupplierService supplierService;
+
+    @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Create a new supplier")
+    public ResponseEntity<ApiResponse<SupplierResponse>> create(@Valid @RequestBody SupplierRequest request) {
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(ApiResponse.success("Supplier created successfully", supplierService.create(request)));
+    }
+
+    @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Update an existing supplier")
+    public ResponseEntity<ApiResponse<SupplierResponse>> update(@PathVariable Long id, @Valid @RequestBody SupplierRequest request) {
+        return ResponseEntity.ok(ApiResponse.success("Supplier updated successfully", supplierService.update(id, request)));
+    }
+
+    @GetMapping("/{id}")
+    @Operation(summary = "Get a single supplier by id")
+    public ResponseEntity<ApiResponse<SupplierResponse>> get(@PathVariable Long id) {
+        return ResponseEntity.ok(ApiResponse.success("Supplier fetched successfully", supplierService.get(id)));
+    }
+
+    @GetMapping
+    @Operation(summary = "Search suppliers with pagination, sorting, and optional status filter")
+    public ResponseEntity<ApiResponse<PagedResponse<SupplierResponse>>> search(
+            @RequestParam(required = false) String query,
+            @RequestParam(required = false) Status status,
+            @PageableDefault(size = 10, sort = "name") Pageable pageable) {
+        Page<SupplierResponse> page = supplierService.search(query, status, pageable);
+        return ResponseEntity.ok(ApiResponse.success("Suppliers fetched successfully", PagedResponse.from(page)));
+    }
+
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Delete a supplier")
+    public ResponseEntity<ApiResponse<Void>> delete(@PathVariable Long id) {
+        supplierService.delete(id);
+        return ResponseEntity.ok(ApiResponse.success("Supplier deleted successfully"));
+    }
+}

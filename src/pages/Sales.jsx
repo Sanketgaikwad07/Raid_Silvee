@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   FiPlus, FiDownload, FiUpload, FiSearch, FiFilter, FiCalendar,
   FiEye, FiEdit2, FiPrinter, FiTrash2,
-  FiDollarSign, FiFileText, FiCheckCircle, FiAlertCircle
+  FiDollarSign, FiFileText, FiCheckCircle, FiAlertCircle, FiUsers
 } from 'react-icons/fi';
 import './ModulePages.css';
 
@@ -29,6 +30,7 @@ const statusClass = (status) => {
 };
 
 const Sales = () => {
+  const navigate = useNavigate();
   const [search, setSearch] = useState('');
   const [entriesPerPage, setEntriesPerPage] = useState('10');
 
@@ -56,6 +58,9 @@ const Sales = () => {
           <p className="module-header__desc">Manage and track all sales invoices and payments</p>
         </div>
         <div className="module-header__actions">
+          <button className="btn btn--outline" onClick={() => navigate('/sales/registered-customers')}>
+            <FiUsers size={14} /> Registered Customers
+          </button>
           <button className="btn btn--outline"><FiUpload size={14} /> Import</button>
           <button className="btn btn--outline"><FiDownload size={14} /> Export</button>
           <button className="btn btn--primary"><FiPlus size={14} /> New Invoice</button>

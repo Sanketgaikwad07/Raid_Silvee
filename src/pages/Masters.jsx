@@ -5,6 +5,7 @@ import './Masters.css';
 
 const Masters = () => {
   const [activeTab, setActiveTab] = useState('general');
+  const [isDetailsVisible, setIsDetailsVisible] = useState(false);
   const tabs = ['General', 'Address', 'Finance', 'Settings', 'Bank Details', 'GST Details', 'Other Details', 'Logo'];
 
   return (
@@ -25,7 +26,9 @@ const Masters = () => {
         <div className="masters-header__actions">
           <button className="btn btn--outline"><FiUpload size={14} /> Import</button>
           <button className="btn btn--outline"><FiDownload size={14} /> Export</button>
-          <button className="btn btn--primary"><FiPlus size={14} /> Add Company</button>
+          <button className="btn btn--primary" onClick={() => setIsDetailsVisible(true)}>
+            <FiPlus size={14} /> Add Company
+          </button>
         </div>
       </div>
 
@@ -131,8 +134,8 @@ const Masters = () => {
                 </td>
                 <td>
                   <div className="action-btns">
-                    <button className="action-btn"><FiEye size={14} /></button>
-                    <button className="action-btn"><FiEdit2 size={14} /></button>
+                    <button className="action-btn" onClick={() => setIsDetailsVisible(true)}><FiEye size={14} /></button>
+                    <button className="action-btn" onClick={() => setIsDetailsVisible(true)}><FiEdit2 size={14} /></button>
                     <button className="action-btn delete"><FiTrash2 size={14} /></button>
                   </div>
                 </td>
@@ -152,105 +155,107 @@ const Masters = () => {
       </div>
 
       {/* Company Details Form */}
-      <div className="masters-detail-card">
-        <h3 className="detail-title">Company Details (Silvee925 Jewels Pvt. Ltd.)</h3>
-        <div className="detail-tabs">
-          {tabs.map((tab) => (
-            <button
-              key={tab}
-              className={`detail-tab ${activeTab === tab.toLowerCase().replace(/ /g, '-') ? 'active' : ''}`}
-              onClick={() => setActiveTab(tab.toLowerCase().replace(/ /g, '-'))}
-            >
-              {tab}
-            </button>
-          ))}
-        </div>
+      {isDetailsVisible && (
+        <div className="masters-detail-card">
+          <h3 className="detail-title">Company Details (Silvee925 Jewels Pvt. Ltd.)</h3>
+          <div className="detail-tabs">
+            {tabs.map((tab) => (
+              <button
+                key={tab}
+                className={`detail-tab ${activeTab === tab.toLowerCase().replace(/ /g, '-') ? 'active' : ''}`}
+                onClick={() => setActiveTab(tab.toLowerCase().replace(/ /g, '-'))}
+              >
+                {tab}
+              </button>
+            ))}
+          </div>
 
-        <div className="detail-form">
-          <div className="form-grid">
-            <div className="form-group">
-              <label>Company Code*</label>
-              <input type="text" value="SILVEE925" readOnly />
-            </div>
-            <div className="form-group">
-              <label>Phone No.*</label>
-              <input type="text" value="+91 88888 92525" readOnly />
-            </div>
-            <div className="form-group">
-              <label>Alternate Phone</label>
-              <input type="text" value="+91 77770 92525" readOnly />
-            </div>
-            <div className="form-group">
-              <label>Company Name*</label>
-              <input type="text" value="Silvee925 Jewels Pvt. Ltd." readOnly />
-            </div>
-            <div className="form-group">
-              <label>State*</label>
-              <select><option>Maharashtra</option></select>
-            </div>
-            <div className="form-group">
-              <label>State Code*</label>
-              <input type="text" value="27" readOnly />
-            </div>
-            <div className="form-group">
-              <label>GST No.*</label>
-              <input type="text" value="27ABCDE1234F1Z5" readOnly />
-            </div>
-            <div className="form-group">
-              <label>Country*</label>
-              <select><option>India</option></select>
-            </div>
-            <div className="form-group">
-              <label>Currency*</label>
-              <select><option>INR - Indian Rupee</option></select>
-            </div>
-            <div className="form-group">
-              <label>PAN No.</label>
-              <input type="text" value="ABCDE1234F" readOnly />
-            </div>
-            <div className="form-group">
-              <label>Default Company</label>
-              <div className="toggle-switch">
-                <div className="toggle active"></div>
-                <span>Yes</span>
+          <div className="detail-form">
+            <div className="form-grid">
+              <div className="form-group">
+                <label>Company Code*</label>
+                <input type="text" value="SILVEE925" readOnly />
+              </div>
+              <div className="form-group">
+                <label>Phone No.*</label>
+                <input type="text" value="+91 88888 92525" readOnly />
+              </div>
+              <div className="form-group">
+                <label>Alternate Phone</label>
+                <input type="text" value="+91 77770 92525" readOnly />
+              </div>
+              <div className="form-group">
+                <label>Company Name*</label>
+                <input type="text" value="Silvee925 Jewels Pvt. Ltd." readOnly />
+              </div>
+              <div className="form-group">
+                <label>State*</label>
+                <select><option>Maharashtra</option></select>
+              </div>
+              <div className="form-group">
+                <label>State Code*</label>
+                <input type="text" value="27" readOnly />
+              </div>
+              <div className="form-group">
+                <label>GST No.*</label>
+                <input type="text" value="27ABCDE1234F1Z5" readOnly />
+              </div>
+              <div className="form-group">
+                <label>Country*</label>
+                <select><option>India</option></select>
+              </div>
+              <div className="form-group">
+                <label>Currency*</label>
+                <select><option>INR - Indian Rupee</option></select>
+              </div>
+              <div className="form-group">
+                <label>PAN No.</label>
+                <input type="text" value="ABCDE1234F" readOnly />
+              </div>
+              <div className="form-group">
+                <label>Default Company</label>
+                <div className="toggle-switch">
+                  <div className="toggle active"></div>
+                  <span>Yes</span>
+                </div>
+              </div>
+              <div className="form-group">
+                <label>Status</label>
+                <select><option>Active</option></select>
+              </div>
+              <div className="form-group">
+                <label>Email</label>
+                <input type="text" value="info@silvee925.com" readOnly />
+              </div>
+              <div className="form-group">
+                <label>Website</label>
+                <input type="text" value="www.silvee925.com" readOnly />
               </div>
             </div>
-            <div className="form-group">
-              <label>Status</label>
-              <select><option>Active</option></select>
-            </div>
-            <div className="form-group">
-              <label>Email</label>
-              <input type="text" value="info@silvee925.com" readOnly />
-            </div>
-            <div className="form-group">
-              <label>Website</label>
-              <input type="text" value="www.silvee925.com" readOnly />
+
+            {/* Company Logo Section */}
+            <div className="company-logo-section">
+              <h4>Company Logo</h4>
+              <div className="logo-placeholder">
+                <div className="logo-text">
+                  <span className="logo-silvee">Silvee</span>
+                  <span className="logo-925">925</span>
+                  <span className="logo-tm">™</span>
+                </div>
+              </div>
+              <div className="logo-actions">
+                <button className="btn btn--outline btn--sm">Upload Logo</button>
+                <button className="btn btn--danger btn--sm">✕ Remove</button>
+              </div>
             </div>
           </div>
 
-          {/* Company Logo Section */}
-          <div className="company-logo-section">
-            <h4>Company Logo</h4>
-            <div className="logo-placeholder">
-              <div className="logo-text">
-                <span className="logo-silvee">Silvee</span>
-                <span className="logo-925">925</span>
-                <span className="logo-tm">™</span>
-              </div>
-            </div>
-            <div className="logo-actions">
-              <button className="btn btn--outline btn--sm">Upload Logo</button>
-              <button className="btn btn--danger btn--sm">✕ Remove</button>
-            </div>
+          <div className="detail-footer">
+            <button className="btn btn--outline" onClick={() => setIsDetailsVisible(false)}>Cancel</button>
+            <button className="btn btn--primary" onClick={() => setIsDetailsVisible(false)}>Save Changes</button>
           </div>
         </div>
-
-        <div className="detail-footer">
-          <button className="btn btn--outline">Cancel</button>
-          <button className="btn btn--primary">Save Changes</button>
-        </div>
-      </div>
+      )}
     </div>
   );
 };

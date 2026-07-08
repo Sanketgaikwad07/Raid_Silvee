@@ -1,0 +1,500 @@
+{
+  "info": {
+    "name": "Silvee925 ERP Backend - Phase 1",
+    "description": "Authentication, User/Employee management, and Company Master APIs.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8080/api" },
+    { "key": "accessToken", "value": "" },
+    { "key": "refreshToken", "value": "" },
+    { "key": "companyId", "value": "" },
+    { "key": "userId", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register first ADMIN",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const body = pm.response.json();",
+                  "if (body.data) { pm.collectionVariables.set('accessToken', body.data.accessToken); pm.collectionVariables.set('refreshToken', body.data.refreshToken); }"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/auth/register",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fullName\": \"Super Admin\",\n  \"email\": \"admin@silvee925.com\",\n  \"password\": \"Admin@12345\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const body = pm.response.json();",
+                  "if (body.data) { pm.collectionVariables.set('accessToken', body.data.accessToken); pm.collectionVariables.set('refreshToken', body.data.refreshToken); }"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/auth/login",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@silvee925.com\",\n  \"password\": \"Admin@12345\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Refresh Token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const body = pm.response.json();",
+                  "if (body.data) { pm.collectionVariables.set('accessToken', body.data.accessToken); pm.collectionVariables.set('refreshToken', body.data.refreshToken); }"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/auth/refresh-token",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refreshToken\": \"{{refreshToken}}\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{baseUrl}}/auth/logout",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refreshToken\": \"{{refreshToken}}\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "User Management (ADMIN only)",
+      "item": [
+        {
+          "name": "Create Employee + SALES Account",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const body = pm.response.json();",
+                  "if (body.data) { pm.collectionVariables.set('userId', body.data.id); }"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "url": "{{baseUrl}}/users/employees",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"employeeCode\": \"SM-001\",\n  \"fullName\": \"Mahesh Patil\",\n  \"designation\": \"Salesman\",\n  \"phone\": \"+91 98765 43210\",\n  \"email\": \"mahesh@silvee925.com\",\n  \"password\": \"Sales@12345\",\n  \"permissions\": [\n    { \"module\": \"CUSTOMER_MASTER\", \"action\": \"READ\" },\n    { \"module\": \"SALES_INVOICE\", \"action\": \"CREATE\" },\n    { \"module\": \"SALES_INVOICE\", \"action\": \"READ\" }\n  ]\n}"
+            }
+          }
+        },
+        {
+          "name": "Assign Permissions",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "url": "{{baseUrl}}/users/{{userId}}/permissions",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"permissions\": [\n    { \"module\": \"CUSTOMER_MASTER\", \"action\": \"READ\" }\n  ]\n}"
+            }
+          }
+        },
+        {
+          "name": "List Users",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "url": "{{baseUrl}}/users"
+          }
+        },
+        {
+          "name": "Get User",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "url": "{{baseUrl}}/users/{{userId}}"
+          }
+        },
+        {
+          "name": "Deactivate User",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "url": "{{baseUrl}}/users/{{userId}}/deactivate"
+          }
+        },
+        {
+          "name": "Activate User",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "url": "{{baseUrl}}/users/{{userId}}/activate"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Company Master",
+      "item": [
+        {
+          "name": "Create Company",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const body = pm.response.json();",
+                  "if (body.data) { pm.collectionVariables.set('companyId', body.data.id); }"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "url": "{{baseUrl}}/masters/companies",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"companyCode\": \"SILVEE925\",\n  \"companyName\": \"Silvee925 Jewels Pvt. Ltd.\",\n  \"legalName\": \"Silvee925 Jewels Private Limited\",\n  \"companyType\": \"Private Limited\",\n  \"gstNo\": \"27ABCDE1234F1Z5\",\n  \"panNo\": \"ABCDE1234F\",\n  \"phone\": \"+91 88888 92525\",\n  \"email\": \"info@silvee925.com\",\n  \"website\": \"www.silvee925.com\",\n  \"addressLine1\": \"3A, 3B, 2nd Floor, SB Road\",\n  \"city\": \"Pune\",\n  \"state\": \"Maharashtra\",\n  \"stateCode\": \"27\",\n  \"pincode\": \"411016\",\n  \"country\": \"India\",\n  \"currency\": \"INR\",\n  \"defaultCompany\": false,\n  \"status\": \"ACTIVE\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Update Company",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "url": "{{baseUrl}}/masters/companies/{{companyId}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"companyCode\": \"SILVEE925\",\n  \"companyName\": \"Silvee925 Jewels Pvt. Ltd. (Updated)\",\n  \"phone\": \"+91 88888 92525\",\n  \"state\": \"Maharashtra\",\n  \"stateCode\": \"27\",\n  \"country\": \"India\",\n  \"currency\": \"INR\",\n  \"defaultCompany\": true,\n  \"status\": \"ACTIVE\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Get Company",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "url": "{{baseUrl}}/masters/companies/{{companyId}}"
+          }
+        },
+        {
+          "name": "Search Companies (paginated)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "url": {
+              "raw": "{{baseUrl}}/masters/companies?query=silvee&status=ACTIVE&page=0&size=10&sort=companyName,asc",
+              "host": ["{{baseUrl}}"],
+              "path": ["masters", "companies"],
+              "query": [
+                { "key": "query", "value": "silvee" },
+                { "key": "status", "value": "ACTIVE" },
+                { "key": "page", "value": "0" },
+                { "key": "size", "value": "10" },
+                { "key": "sort", "value": "companyName,asc" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Set Default Company",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "url": "{{baseUrl}}/masters/companies/{{companyId}}/set-default"
+          }
+        },
+        {
+          "name": "Delete Company",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "url": "{{baseUrl}}/masters/companies/{{companyId}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Phase 2 - Simple Masters",
+      "item": [
+        {
+          "name": "Create Unit",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "url": "{{baseUrl}}/masters/units",
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"Gram\",\n  \"abbreviation\": \"gm\",\n  \"status\": \"ACTIVE\"\n}" }
+          }
+        },
+        {
+          "name": "Search Units",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "url": "{{baseUrl}}/masters/units?page=0&size=10&sort=name,asc"
+          }
+        },
+        {
+          "name": "Create Currency",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "url": "{{baseUrl}}/masters/currencies",
+            "body": { "mode": "raw", "raw": "{\n  \"code\": \"INR\",\n  \"name\": \"Indian Rupee\",\n  \"symbol\": \"₹\",\n  \"decimalPlaces\": 2,\n  \"defaultCurrency\": false,\n  \"status\": \"ACTIVE\"\n}" }
+          }
+        },
+        {
+          "name": "Set Default Currency",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "url": "{{baseUrl}}/masters/currencies/1/set-default"
+          }
+        },
+        {
+          "name": "Create Tax",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "url": "{{baseUrl}}/masters/taxes",
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"GST 18%\",\n  \"code\": \"GST18\",\n  \"ratePercentage\": 18.0,\n  \"status\": \"ACTIVE\"\n}" }
+          }
+        },
+        {
+          "name": "Create Warehouse",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "url": "{{baseUrl}}/masters/warehouses",
+            "body": { "mode": "raw", "raw": "{\n  \"warehouseCode\": \"WH-01\",\n  \"name\": \"Main Warehouse\",\n  \"location\": \"Pune\",\n  \"capacity\": 1200,\n  \"defaultWarehouse\": false,\n  \"status\": \"ACTIVE\"\n}" }
+          }
+        },
+        {
+          "name": "Create Bank",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "url": "{{baseUrl}}/masters/banks",
+            "body": { "mode": "raw", "raw": "{\n  \"bankName\": \"State Bank of India\",\n  \"branch\": \"Pune\",\n  \"accountHolderName\": \"Silvee925 Jewels Pvt. Ltd.\",\n  \"accountNo\": \"1234567890\",\n  \"ifscCode\": \"SBIN0001234\",\n  \"status\": \"ACTIVE\"\n}" }
+          }
+        },
+        {
+          "name": "Create Financial Year",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "url": "{{baseUrl}}/masters/financial-years",
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"FY 2024-25\",\n  \"startDate\": \"2024-04-01\",\n  \"endDate\": \"2025-03-31\",\n  \"activeYear\": false,\n  \"status\": \"ACTIVE\"\n}" }
+          }
+        },
+        {
+          "name": "Set Active Financial Year",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "url": "{{baseUrl}}/masters/financial-years/1/set-active"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Phase 3 - Category / Sub Category / Item",
+      "item": [
+        {
+          "name": "Create Category",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "url": "{{baseUrl}}/masters/categories",
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"Rings\",\n  \"type\": \"Product\",\n  \"status\": \"ACTIVE\"\n}" }
+          }
+        },
+        {
+          "name": "Create Sub Category",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "url": "{{baseUrl}}/masters/sub-categories",
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"Rings - Gold\",\n  \"categoryId\": 1,\n  \"description\": \"Gold rings collection\",\n  \"status\": \"ACTIVE\"\n}" }
+          }
+        },
+        {
+          "name": "Search Sub Categories by Category",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "url": "{{baseUrl}}/masters/sub-categories?categoryId=1&page=0&size=10"
+          }
+        },
+        {
+          "name": "Create Item",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "url": "{{baseUrl}}/masters/items",
+            "body": { "mode": "raw", "raw": "{\n  \"itemCode\": \"ITM-001\",\n  \"name\": \"CZ Ring (Premium)\",\n  \"categoryId\": 1,\n  \"subCategoryId\": 1,\n  \"unitId\": 1,\n  \"hsnCode\": \"71131900\",\n  \"purchasePrice\": 2000.00,\n  \"sellingPrice\": 2450.00,\n  \"status\": \"ACTIVE\"\n}" }
+          }
+        },
+        {
+          "name": "Search Items by Category",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "url": "{{baseUrl}}/masters/items?categoryId=1&page=0&size=10"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Phase 4 - Customer / Supplier / Salesman / Ledger / Employee",
+      "item": [
+        {
+          "name": "Create Customer",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "url": "{{baseUrl}}/masters/customers",
+            "body": { "mode": "raw", "raw": "{\n  \"customerCode\": \"CUST-001\",\n  \"name\": \"Shree Jewellers\",\n  \"phone\": \"+91 98765 43210\",\n  \"email\": \"shree@example.com\",\n  \"gstNo\": \"27ABCDE1234F1Z5\",\n  \"city\": \"Pune\",\n  \"state\": \"Maharashtra\",\n  \"pincode\": \"411001\",\n  \"creditLimit\": 50000,\n  \"openingBalance\": 0,\n  \"status\": \"ACTIVE\"\n}" }
+          }
+        },
+        {
+          "name": "Create Supplier",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "url": "{{baseUrl}}/masters/suppliers",
+            "body": { "mode": "raw", "raw": "{\n  \"supplierCode\": \"SUP-001\",\n  \"name\": \"Shree Silver Suppliers\",\n  \"phone\": \"+91 98888 12345\",\n  \"email\": \"shree.supplier@example.com\",\n  \"openingBalance\": 0,\n  \"status\": \"ACTIVE\"\n}" }
+          }
+        },
+        {
+          "name": "Create Salesman",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "url": "{{baseUrl}}/masters/salesmen",
+            "body": { "mode": "raw", "raw": "{\n  \"salesmanCode\": \"SM-001\",\n  \"name\": \"Mahesh Patil\",\n  \"phone\": \"+91 98765 43210\",\n  \"email\": \"mahesh@example.com\",\n  \"territory\": \"Pune West\",\n  \"monthlyTarget\": 300000,\n  \"status\": \"ACTIVE\"\n}" }
+          }
+        },
+        {
+          "name": "Create Ledger",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "url": "{{baseUrl}}/masters/ledgers",
+            "body": { "mode": "raw", "raw": "{\n  \"ledgerCode\": \"LG-SALES\",\n  \"name\": \"Sales Ledger\",\n  \"ledgerType\": \"SALES\",\n  \"openingBalance\": 0,\n  \"openingBalanceType\": \"CREDIT\",\n  \"status\": \"ACTIVE\"\n}" }
+          }
+        },
+        {
+          "name": "Create Employee (standalone Master)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "url": "{{baseUrl}}/masters/employees",
+            "body": { "mode": "raw", "raw": "{\n  \"employeeCode\": \"EMP-001\",\n  \"fullName\": \"Priya Deshmukh\",\n  \"designation\": \"Accountant\",\n  \"phone\": \"+91 88888 22222\",\n  \"email\": \"priya@silvee925.com\",\n  \"status\": \"ACTIVE\"\n}" }
+          }
+        },
+        {
+          "name": "Search Employees",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }],
+            "url": "{{baseUrl}}/masters/employees?page=0&size=10"
+          }
+        }
+      ]
+    }
+  ]
+}

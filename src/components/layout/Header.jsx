@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { useLocation } from 'react-router-dom';
-import { FiMenu, FiSearch, FiCalendar, FiBell, FiHelpCircle, FiSettings, FiChevronDown, FiClock } from 'react-icons/fi';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { FiMenu, FiSearch, FiCalendar, FiBell, FiHelpCircle, FiSettings, FiChevronDown, FiClock, FiLogOut } from 'react-icons/fi';
+import { useAuth } from '../../context/AuthContext';
 import './Header.css';
 
 const pageTitles = {
@@ -19,6 +20,8 @@ const pageTitles = {
 
 const Header = () => {
   const location = useLocation();
+  const navigate = useNavigate();
+  const { user, logout } = useAuth();
   const [now, setNow] = useState(new Date());
 
   useEffect(() => {
@@ -50,6 +53,26 @@ const Header = () => {
       }
     }
     return 'Dashboard';
+  };
+
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  };
+
+  const roleLabel = user?.role === 'admin' ? 'Admin' : 'Salesman';
+  const roleBadgeStyle = {
+    display: 'inline-block',
+    padding: '2px 8px',
+    borderRadius: '6px',
+    fontSize: '0.65rem',
+    fontWeight: 700,
+    textTransform: 'uppercase',
+    letterSpacing: '0.05em',
+    background: user?.role === 'admin'
+      ? 'linear-gradient(135deg, rgba(15, 98, 254, 0.12), rgba(139, 92, 246, 0.12))'
+      : 'linear-gradient(135deg, rgba(34, 197, 94, 0.12), rgba(6, 182, 212, 0.12))',
+    color: user?.role === 'admin' ? '#3b82f6' : '#22c55e',
   };
 
   return (
@@ -103,12 +126,21 @@ const Header = () => {
         </button>
 
         <div className="header__admin">
-          <div className="header__admin-avatar">A</div>
+          <div className="header__admin-avatar">{user?.avatar || 'U'}</div>
           <div className="header__admin-info">
-            <span className="header__admin-label">Admin</span>
-            <span className="header__admin-name">Super Admin</span>
+            <span style={roleBadgeStyle}>{roleLabel}</span>
+            <span className="header__admin-name">{user?.name || 'User'}</span>
           </div>
         </div>
+
+        <button
+          className="header__icon-btn"
+          onClick={handleLogout}
+          title="Logout"
+          style={{ color: '#ef4444' }}
+        >
+          <FiLogOut size={18} />
+        </button>
       </div>
     </header>
   );
